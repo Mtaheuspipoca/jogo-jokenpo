@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Joquempô</title>
+    <style>
+        /* Estilos CSS para o layout e visual */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #resultado {
+            margin-top: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745; /* Cor para vitória */
+        }
+
+        #jogadas {
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        .placar {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .placar span {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .restart-button {
+            background-color: #dc3545; /* Cor para reiniciar */
+            margin-top: 20px;
+            display: none; /* Escondido inicialmente */
+        }
+
+        .restart-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Joquempô!</h1>
+        <p>Escolha sua jogada:</p>
+
+        <div class="buttons">
+            <button id="pedra">Pedra</button>
+            <button id="papel">Papel</button>
+            <button id="tesoura">Tesoura</button>
+        </div>
+
+        <p id="jogadas">Sua jogada: - <br> Máquina: -</p>
+        <p id="resultado"></p>
+        <p class="placar">Placar: Você <span id="placar-usuario">0</span> - Máquina <span id="placar-maquina">0</span></p>
+
+        <button id="reiniciar" class="restart-button">Jogar Novamente</button>
+    </div>
+
+    <script>
+        // Lógica do jogo em JavaScript
+        const opcoes = ['Pedra', 'Papel', 'Tesoura'];
+        let placarUsuario = 0;
+        let placarMaquina = 0;
+
+        // Referências aos elementos HTML
+        const btnPedra = document.getElementById('pedra');
+        const btnPapel = document.getElementById('papel');
+        const btnTesoura = document.getElementById('tesoura');
+        const resultadoDisplay = document.getElementById('resultado');
+        const jogadasDisplay = document.getElementById('jogadas');
+        const placarUsuarioDisplay = document.getElementById('placar-usuario');
+        const placarMaquinaDisplay = document.getElementById('placar-maquina');
+        const btnReiniciar = document.getElementById('reiniciar');
+        const botoesEscolha = document.querySelectorAll('.buttons button'); // Seleciona todos os botões de escolha
+
+        // Função para gerar a jogada da máquina
+        function jogadaMaquina() {
+            const indiceAleatorio = Math.floor(Math.random() * opcoes.length);
+            return opcoes[indiceAleatorio];
+        }
+
+        // Função para determinar o vencedor
+        function determinarVencedor(jogadaUsuario, jogadaMaquina) {
+            if (jogadaUsuario === jogadaMaquina) {
+                return 'Empate!';
+            } else if (
+                (jogadaUsuario === 'Pedra' && jogadaMaquina === 'Tesoura') ||
+                (jogadaUsuario === 'Papel' && jogadaMaquina === 'Pedra') ||
+                (jogadaUsuario === 'Tesoura' && jogadaMaquina === 'Papel')
+            ) {
+                placarUsuario++;
+                return 'Você Venceu!';
+            } else {
+                placarMaquina++;
+                return 'Você Perdeu!';
+            }
+        }
+
+        // Função principal para lidar com a jogada do usuário
+        function jogar(jogadaUsuario) {
+            const maquinaJogou = jogadaMaquina();
+            const resultado = determinarVencedor(jogadaUsuario, maquinaJogou);
+
+            jogadasDisplay.innerHTML = `Sua jogada: ${jogadaUsuario} <br> Máquina: ${maquinaJogou}`;
+            resultadoDisplay.textContent = resultado;
+            placarUsuarioDisplay.textContent = placarUsuario;
+            placarMaquinaDisplay.textContent = placarMaquina;
+
+            // Altera a cor do resultado
+            if (resultado.includes('Venceu')) {
+                resultadoDisplay.style.color = '#28a745'; // Verde
+            } else if (resultado.includes('Perdeu')) {
+                resultadoDisplay.style.color = '#dc3545'; // Vermelho
+            } else {
+                resultadoDisplay.style.color = '#007bff'; // Azul (para empate)
+            }
+
+            // Mostra o botão de reiniciar após a primeira jogada
+            btnReiniciar.style.display = 'block';
+            
+            // Desabilita os botões de escolha após uma jogada
+            botoesEscolha.forEach(button => button.disabled = true);
+        }
+
+        // Adiciona "ouvintes de evento" (event listeners) aos botões
+        btnPedra.addEventListener('click', () => jogar('Pedra'));
+        btnPapel.addEventListener('click', () => jogar('Papel'));
+        btnTesoura.addEventListener('click', () => jogar('Tesoura'));
+
+        // Adiciona evento ao botão de reiniciar
+        btnReiniciar.addEventListener('click', () => {
+            // Limpa o display
+            jogadasDisplay.innerHTML = `Sua jogada: - <br> Máquina: -`;
+            resultadoDisplay.textContent = '';
+            resultadoDisplay.style.color = '#333'; // Volta para cor padrão
+
+            // Reabilita os botões de escolha
+            botoesEscolha.forEach(button => button.disabled = false);
+            btnReiniciar.style.display = 'none'; // Esconde o botão de reiniciar
+        });
+
+        // Opcional: Para reiniciar o placar, adicione um botão separado ou mude o comportamento do reiniciar
+        // Para reiniciar o placar ao clicar em "Jogar Novamente":
+        // btnReiniciar.addEventListener('click', () => {
+        //     placarUsuario = 0;
+        //     placarMaquina = 0;
+        //     placarUsuarioDisplay.textContent = placarUsuario;
+        //     placarMaquinaDisplay.textContent = placarMaquina;
+        //     // ... o resto do código para limpar display e reabilitar botões ...
+        // });
+    </script>
+</body>
+</html>
